@@ -3,21 +3,32 @@ package main
 import (
 	"fmt"
 
-	"github.com/ramsgoli/columnar_store/backend"
+	"github.com/ramsgoli/columnar_store/executor"
+	"github.com/ramsgoli/columnar_store/repl"
 )
 
 func main() {
 	/*
-		var u = backend.User{
-			Name: [8]byte{'r', 'a', 'm'},
-			Age:  24,
+		colMetadata := []tables.ColMetadata{
+			{ColName: [8]byte{'n', 'a', 'm', 'e'}, Type: 0},
+			{ColName: [8]byte{'a', 'g', 'e'}, Type: 1},
 		}
-
-		backend.Insert(&u)
+		newTable := tables.TableMetadata{TableName: [8]byte{'u', 's', 'e', 'r'}, NumCols: 2, ColMetadata: &colMetadata}
+		err := tables.CreateTable(&newTable)
+		if err != nil {
+			panic(err)
+		}
 	*/
+	command := make(chan string)
+	cont := make(chan bool)
+	go repl.StartRepl(command, cont)
 
-	allUsers := backend.ReadUsers()
-	fmt.Printf("Found %d users\n", len(*allUsers))
-	firstUser := (*allUsers)[0]
-	fmt.Printf("Name: %s, Age: %d\n", firstUser.Name, firstUser.Age)
+	for t := range command {
+		err := executor.Execute(t)
+		if err != nil {
+			panic(err)
+		}
+		cont <- true
+	}
+	fmt.Println("done!")
 }

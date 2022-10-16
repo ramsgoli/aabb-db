@@ -5,16 +5,20 @@ import (
 	"path"
 )
 
-var DataPath string
+var dataPath string
 
 func init() {
 	d, err := os.UserHomeDir()
 	if err != nil {
 		panic("Couldn't obtain home dir")
 	}
-	DataPath = path.Join(d, "columnar", "data")
+	dataPath = path.Join(d, "columnar", "data")
 }
 
-func GetTablePath() string {
-	return path.Join(DataPath, "tables")
+func GetTablesPath() string {
+	return path.Join(dataPath, "tables")
+}
+
+func GetTableMetadataPath() string {
+	return path.Join(dataPath, "meta", "_tables")
 }

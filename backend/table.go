@@ -16,7 +16,7 @@ type User struct {
 }
 
 func CreateTable(name string) {
-	fmt.Printf("Using %s as the table path\n", config.GetTablePath())
+	fmt.Printf("Using %s as the table path\n", config.GetTablesPath())
 }
 
 func Insert(u *User) {
@@ -24,7 +24,7 @@ func Insert(u *User) {
 	var ageFile *os.File
 	var err error
 
-	nameFile, err = os.OpenFile(config.GetTablePath()+"/user/name", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	nameFile, err = os.OpenFile(config.GetTablesPath()+"/user/name", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		panic("Couldn't open name file")
 	}
@@ -36,7 +36,7 @@ func Insert(u *User) {
 		panic("Couldn't write name")
 	}
 
-	ageFile, err = os.OpenFile(config.GetTablePath()+"/user/age", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	ageFile, err = os.OpenFile(config.GetTablesPath()+"/user/age", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		fmt.Println(err)
 		panic("Couldn't open age file")
@@ -54,7 +54,7 @@ func ReadUsers() *[]User {
 	var users []User
 
 	// first, read name
-	nameFile, err := os.Open(config.GetTablePath() + "/user/name")
+	nameFile, err := os.Open(config.GetTablesPath() + "/user/name")
 	if err != nil {
 		panic("Couldn't open name file to read")
 	}
@@ -64,10 +64,11 @@ func ReadUsers() *[]User {
 	name := [NAME_SIZE]byte{}
 	nameFile.Read(name[:])
 
-	ageFile, err := os.Open(config.GetTablePath() + "/user/age")
+	ageFile, err := os.Open(config.GetTablesPath() + "/user/age")
 	if err != nil {
 		panic("Couldn't open age file to read")
 	}
+	defer ageFile.Close()
 
 	age := [1]uint8{}
 	ageFile.Read(age[:])
