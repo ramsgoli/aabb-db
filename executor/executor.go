@@ -6,11 +6,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ramsgoli/columnar_store/backend/tables"
+	"github.com/ramsgoli/columnar_store/backend/meta"
 )
 
 func handleGet(tokens []string) {
-	if t, err := tables.GetAllTables(); err == nil {
+	if t, err := meta.GetAllTables(); err == nil {
 		fmt.Printf("Got %d tables\n", len(*t.Tables))
 	} else {
 		panic(err)
@@ -24,7 +24,7 @@ func handleCreate(tokens []string) {
 	colDetails := tokens[1:]
 	numColumns := uint8(len(colDetails) / 2)
 
-	colMetadatas := []tables.ColMetadata{}
+	colMetadatas := []meta.ColMetadata{}
 	for i := 0; i < len(colDetails); i += 2 {
 		colName := colDetails[i]
 
@@ -35,9 +35,9 @@ func handleCreate(tokens []string) {
 
 		var colByteArray [8]byte
 		copy(colByteArray[:], []byte(colName))
-		colMetadatas = append(colMetadatas, tables.ColMetadata{ColName: colByteArray, Type: colType})
+		colMetadatas = append(colMetadatas, meta.ColMetadata{ColName: colByteArray, Type: colType})
 	}
-	if err := tables.CreateTable(&tables.TableMetadata{
+	if err := meta.CreateTable(&meta.TableMetadata{
 		TableName:   tableNameByteArray,
 		NumCols:     numColumns,
 		ColMetadata: &colMetadatas,
