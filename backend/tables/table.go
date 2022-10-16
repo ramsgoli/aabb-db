@@ -42,7 +42,6 @@ func GetAllTables() (*Tables, error) {
 	}
 
 	numTables := header[0]
-	fmt.Printf("numTables: %s\n", string(numTables))
 
 	var tables []TableMetadata
 	// for each table

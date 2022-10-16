@@ -10,7 +10,7 @@ import (
 )
 
 func handleGet(tokens []string) {
-	if t, err := tables.GetAllTables(); err != nil {
+	if t, err := tables.GetAllTables(); err == nil {
 		fmt.Printf("Got %d tables\n", len(*t.Tables))
 	} else {
 		panic(err)
