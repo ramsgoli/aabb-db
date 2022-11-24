@@ -6,10 +6,11 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ramsgoli/columnar_store/backend/insert"
 	"github.com/ramsgoli/columnar_store/backend/meta"
 )
 
-func handleGet(tokens []string) {
+func handleDescribe(tokens []string) {
 	if t, err := meta.GetAllTables(); err == nil {
 		fmt.Printf("Got %d tables\n", len(*t.Tables))
 	} else {
@@ -29,7 +30,7 @@ func handleCreate(tokens []string) {
 		colName := colDetails[i]
 
 		var colType uint8
-		if colTypeInt, err := strconv.Atoi(colDetails[i+1]); err != nil {
+		if colTypeInt, err := strconv.Atoi(colDetails[i+1]); err == nil {
 			colType = uint8(colTypeInt)
 		}
 
@@ -46,14 +47,26 @@ func handleCreate(tokens []string) {
 	}
 }
 
+func handleInsert(tokens []string) {
+	tableName := tokens[0]
+	attributes := tokens[1:]
+
+	var tableNameBytes [8]byte
+	copy(tableNameBytes[:], []byte(tableName))
+	if err := insert.Insert(&insert.InsertDetails{TableName: tableNameBytes, Attrs: attributes}); err != nil {
+		panic(err)
+	}
+}
+
 func tokenize(command string) []string {
 	return strings.Split(command, " ")
 }
 
 func Execute(command string) error {
 	m := map[string]interface{}{
-		"get":    handleGet,
+		"\\d":    handleDescribe,
 		"create": handleCreate,
+		"insert": handleInsert,
 	}
 
 	tokens := tokenize(command)

@@ -21,7 +21,7 @@ func main() {
 	*/
 	command := make(chan string)
 	cont := make(chan bool)
-	go repl.StartRepl(command, cont)
+	go repl.StartRepl(command, cont, "> ")
 
 	for t := range command {
 		err := executor.Execute(t)

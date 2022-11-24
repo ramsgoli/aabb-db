@@ -6,8 +6,8 @@ import (
 	"os"
 )
 
-func printPrompt() {
-	fmt.Print("> ")
+func printPrompt(p string) {
+	fmt.Print(p)
 }
 
 func printInputs(inputs []string) {
@@ -16,10 +16,10 @@ func printInputs(inputs []string) {
 	}
 }
 
-func StartRepl(c chan string, con chan bool) {
+func StartRepl(c chan string, con chan bool, prompt string) {
 	reader := bufio.NewScanner(os.Stdin)
 
-	printPrompt()
+	printPrompt(prompt)
 	for reader.Scan() {
 		t := reader.Text()
 		if t == ".exit" {
@@ -31,6 +31,6 @@ func StartRepl(c chan string, con chan bool) {
 
 		// wait until we can contnue
 		<-con
-		printPrompt()
+		printPrompt(prompt)
 	}
 }

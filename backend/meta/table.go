@@ -4,9 +4,24 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path"
 
 	"github.com/ramsgoli/columnar_store/config"
+	"github.com/ramsgoli/columnar_store/util"
 )
+
+/*
+Col Types:
+0 - uint8
+1 - varchar(32)
+2 - varchar(256)
+*/
+
+var TypeToSizeMap = map[byte]int{
+	0: 1,  // 1 byte
+	1: 4,  // 4 bytes
+	2: 32, // 32 bytes
+}
 
 type ColMetadata struct {
 	ColName [8]byte
@@ -26,6 +41,8 @@ type Tables struct {
 const HEADER_SIZE = 8
 const TABLE_NAME_SIZE int64 = 8
 const NUM_COLS_SIZE = 1
+const COLUMN_NAME_SIZE int64 = 8
+const COLUMN_TYPE_SIZE = 1
 
 func GetAllTables() (*Tables, error) {
 	tableMetadataPath := config.GetTableMetadataPath()
@@ -59,8 +76,8 @@ func GetAllTables() (*Tables, error) {
 
 		// for each col
 		for j := 0; j < int(numColumns); j++ {
-			var columnName [8]byte
-			var columnType [1]byte
+			var columnName [COLUMN_NAME_SIZE]byte
+			var columnType [COLUMN_TYPE_SIZE]byte
 
 			_, err = tableMetadataFile.Read(columnName[:])
 			_, err = tableMetadataFile.Read(columnType[:])
@@ -82,9 +99,9 @@ func GetAllTables() (*Tables, error) {
 
 func CreateTable(t *TableMetadata) error {
 	tableMetadataPath := config.GetTableMetadataPath()
-	tableMetadataFile, err := os.OpenFile(tableMetadataPath, os.O_RDWR, 0)
+	tableMetadataFile, err := os.OpenFile(tableMetadataPath, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		return nil
+		return err
 	}
 	defer tableMetadataFile.Close()
 
@@ -101,7 +118,9 @@ func CreateTable(t *TableMetadata) error {
 	}
 
 	// seek to end of file
-	tableMetadataFile.Seek(0, 2)
+	if _, seekErr := tableMetadataFile.Seek(0, 2); seekErr != nil {
+		return seekErr
+	}
 
 	// write table name
 	_, err = tableMetadataFile.Write(t.TableName[:])
@@ -137,6 +156,12 @@ func CreateTable(t *TableMetadata) error {
 	header[0] = header[0] + 1
 	if _, headerWriteErr := tableMetadataFile.WriteAt(header[:], 0); headerWriteErr != nil {
 		return headerWriteErr
+	}
+
+	// create data dir
+	mkdirErr := os.Mkdir(path.Join(config.GetTablesPath(), util.Trim(t.TableName[:])), os.ModePerm)
+	if mkdirErr != nil {
+		return mkdirErr
 	}
 
 	return nil
