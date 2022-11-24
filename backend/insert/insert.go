@@ -95,7 +95,7 @@ func Insert(i *InsertDetails) error {
 
 	mappedAttrs, checkAttrsErr := checkAttrs(tableMetadata, &i.Attrs)
 	if checkAttrsErr != nil {
-		return err
+		return checkAttrsErr
 	}
 
 	numCols := int(tableMetadata.NumCols)
@@ -106,6 +106,5 @@ func Insert(i *InsertDetails) error {
 		}
 	}
 
-	// write all the shits
 	return nil
 }

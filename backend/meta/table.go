@@ -99,7 +99,7 @@ func GetAllTables() (*Tables, error) {
 
 func CreateTable(t *TableMetadata) error {
 	tableMetadataPath := config.GetTableMetadataPath()
-	tableMetadataFile, err := os.OpenFile(tableMetadataPath, os.O_CREATE|os.O_WRONLY, 0644)
+	tableMetadataFile, err := os.OpenFile(tableMetadataPath, os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
 		return err
 	}
@@ -152,7 +152,10 @@ func CreateTable(t *TableMetadata) error {
 
 	// update header
 	var header [HEADER_SIZE]byte
-	tableMetadataFile.ReadAt(header[:], 0)
+	_, tableMetadataReadErr := tableMetadataFile.ReadAt(header[:], 0)
+	if tableMetadataReadErr != nil {
+		return tableMetadataReadErr
+	}
 	header[0] = header[0] + 1
 	if _, headerWriteErr := tableMetadataFile.WriteAt(header[:], 0); headerWriteErr != nil {
 		return headerWriteErr
