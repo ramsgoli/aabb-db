@@ -13,14 +13,18 @@ import (
 /*
 Col Types:
 0 - uint8
-1 - varchar(32)
-2 - varchar(256)
+1 - uint32
+2 - uint64
+3 - varchar(32)
+4 - varchar(256)
 */
 
 var TypeToSizeMap = map[byte]int{
 	0: 1,  // 1 byte
 	1: 4,  // 4 bytes
-	2: 32, // 32 bytes
+	2: 8,  // 8 bytes
+	3: 4,  // 4 bytes
+	4: 32, // 32 bytes
 }
 
 type ColMetadata struct {

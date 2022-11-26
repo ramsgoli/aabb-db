@@ -2,6 +2,7 @@ package insert
 
 import (
 	"bytes"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"os"
@@ -47,16 +48,24 @@ func checkAttrs(tableMetadata *meta.TableMetadata, attrs *[]string) ([][]byte, e
 		}
 		finalByteSlice := make([]byte, size)
 		switch col.Type {
-		case 0:
+		case 0, 1, 2:
 			var convertedUint uint64
 			var validUintErr error
 			if convertedUint, validUintErr = isValidUint((*attrs)[i], size); validUintErr != nil {
 				return nil, fmt.Errorf("invalid value of size %d bytes: %s", size, (*attrs)[i])
 			}
-			finalByteSlice[0] = byte(convertedUint)
+			switch col.Type {
+			case 0:
+				finalByteSlice[0] = byte(convertedUint)
+			case 1:
+				binary.BigEndian.PutUint32(finalByteSlice, uint32(convertedUint))
+			case 2:
+				binary.BigEndian.PutUint64(finalByteSlice, convertedUint)
+			}
+
 		default:
 			if len((*attrs)[i]) > size {
-				return nil, errors.New("invalid varchar value")
+				return nil, fmt.Errorf("invalid varchar value: %s\n", (*attrs)[i])
 			}
 			// append each char in string to `finalByteSlice`
 			for i_idx, b := range (*attrs)[i] {
