@@ -1,2 +1,9 @@
 .vscode
 bin/
+
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*

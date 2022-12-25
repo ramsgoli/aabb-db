@@ -1,0 +1,3 @@
+steps:
+  - label: "Testing"
+    command: echo "We made it!"
