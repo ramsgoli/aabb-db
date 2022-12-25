@@ -27,7 +27,7 @@ resource "aws_security_group" "buildkite_agent_sg" {
     to_port     = 22
     from_port   = 22
     protocol    = "tcp"
-    cidr_blocks = ["98.210.176.20/32"]
+    cidr_blocks = ["205.220.129.20/32"]
   }
 
   egress {
@@ -43,6 +43,7 @@ resource "aws_security_group" "buildkite_agent_sg" {
   }
 }
 
+# Internet Gateway provides a VPC access to the internet
 resource "aws_internet_gateway" "buildkite_internet_gw" {
   vpc_id = aws_vpc.buildkite_vpc.id
 
@@ -64,6 +65,7 @@ resource "aws_route_table" "buildkite_public_subnet_route_table" {
   }
 }
 
+# Attaching a route from a subnet to the IG effectively makes it a public subnet (reachable from the internet)
 resource "aws_route_table_association" "buildkite_public_subnet_route_table_association" {
   subnet_id      = aws_subnet.buildkite_vpc_primary_subnet.id
   route_table_id = aws_route_table.buildkite_public_subnet_route_table.id
