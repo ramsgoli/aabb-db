@@ -15,3 +15,7 @@ clean:
 .PHONY: test
 test: clean build
 	./testit.sh
+
+.PHONY: fake
+fake:
+	echo "fake"
