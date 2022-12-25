@@ -15,7 +15,3 @@ clean:
 .PHONY: test
 test: clean build
 	./testit.sh
-
-.PHONY: dummy
-dummy:
-	echo "Test!"
