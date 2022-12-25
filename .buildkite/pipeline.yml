@@ -1,3 +1,4 @@
 steps:
-  - label: "Building"
-    command: make build
+  - label: ":buildkite: Test"
+    command: echo "Hello World"
+      
